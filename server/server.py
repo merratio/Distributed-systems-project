@@ -12,7 +12,7 @@ def broadcast(message, sender_conn):
         for client in connected:
             if client != sender_conn:
                 try:
-                    client.sendall(message)
+                    client.sendall(message.encode())
                 except socket.error, BrokenPipeError:
                     connected.discard(client)
                     try:
@@ -32,15 +32,16 @@ def handleClients(client, addr):
         try:
             message = client.recv(1024)
             if not message:
-                with clients_lock:
-                    connected.discard(client)
-                client.close()
-                print(f"Client {addr} has disconnected")
                 break
-            broadcast(message, client)
+            broadcast(f"{addr}: {message}", client)
             
         except socket.error:
             break
+        
+    with clients_lock:
+        connected.discard(client)
+    client.close()
+    print(f"Client {addr} has disconnected")
 
 def server():
 
