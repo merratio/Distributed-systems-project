@@ -1,0 +1,33 @@
+[  0.000s] RTT = A sends PING -> server -> responders -> PONG -> server -> A (4 hops through the server)
+[  0.001s] Times in milliseconds. 'all replies' = until the LAST responder's PONG arrived.
+[  0.001s] 
+[  0.001s] --- Experiment 1: baseline (plain TCP echo, no chat server, 2 hops) ---
+[  1.737s] baseline_tcp_echo                  n= 300  min=  0.089  mean=  0.147  median=  0.139  p95=  0.215  max=  0.385  sd= 0.042  (ms)
+[  1.737s] --- Experiment 2: 2 clients and 3 clients, server as written (the lab requirement) ---
+[  4.318s] chat_2_clients                     n= 300  min=  0.240  mean=  0.339  median=  0.313  p95=  0.523  max=  0.895  sd= 0.091  (ms)
+[  7.057s] chat_3_clients                     n= 300  min=  0.362  mean=  0.640  median=  0.527  p95=  0.737  max= 12.989  sd= 0.994  (ms)
+[  7.061s] --- Experiment 3: scaling the number of clients, server as written ---
+[  8.817s] scale_02_clients                   n= 150  min=  0.218  mean=  0.343  median=  0.328  p95=  0.501  max=  0.676  sd= 0.079  (ms)
+[ 10.587s] scale_03_clients                   n= 150  min=  0.332  mean=  0.484  median=  0.468  p95=  0.623  max=  1.176  sd= 0.089  (ms)
+[ 12.480s] scale_05_clients                   n= 150  min=  0.761  mean=  1.238  median=  0.958  p95=  1.337  max= 12.275  sd= 1.521  (ms)
+[ 14.653s] scale_10_clients                   n= 150  min=  2.344  mean=  2.898  median=  2.764  p95=  3.342  max= 15.482  sd= 1.059  (ms)
+[ 18.112s] scale_20_clients                   n= 150  min=  9.296  mean= 10.241  median= 10.089  p95= 10.886  max= 30.119  sd= 1.682  (ms)
+[ 18.116s] --- Experiment 4: same server + TCP_NODELAY (tests the Nagle / delayed-ACK hypothesis) ---
+[ 20.734s] nodelay_3_clients                  n= 300  min=  0.334  mean=  0.494  median=  0.482  p95=  0.648  max=  0.805  sd= 0.081  (ms)
+[ 22.463s] nodelay_scale_02_clients           n= 150  min=  0.232  mean=  0.303  median=  0.279  p95=  0.412  max=  0.679  sd= 0.061  (ms)
+[ 24.222s] nodelay_scale_03_clients           n= 150  min=  0.374  mean=  0.506  median=  0.490  p95=  0.657  max=  0.893  sd= 0.081  (ms)
+[ 26.083s] nodelay_scale_05_clients           n= 150  min=  0.745  mean=  1.013  median=  0.993  p95=  1.267  max=  1.900  sd= 0.158  (ms)
+[ 28.274s] nodelay_scale_10_clients           n= 150  min=  2.408  mean=  2.836  median=  2.796  p95=  3.272  max=  4.845  sd= 0.277  (ms)
+[ 31.891s] nodelay_scale_20_clients           n= 150  min=  9.473  mean= 11.142  median= 10.872  p95= 13.680  max= 16.290  sd= 1.263  (ms)
+[ 31.894s] --- Experiment 5: injected network delay, 3 clients (delay added per link, each direction) ---
+[ 33.356s] delay_00ms_per_link                n= 100  min=  0.964  mean=  1.218  median=  1.199  p95=  1.530  max=  1.725  sd= 0.151  (ms)
+[ 36.425s] delay_10ms_per_link                n=  40  min= 41.700  mean= 45.110  median= 42.932  p95= 53.749  max= 54.036  sd= 4.412  (ms)
+[ 42.123s] delay_25ms_per_link                n=  40  min=102.119  mean=103.627  median=103.599  p95=104.771  max=105.184  sd= 0.635  (ms)
+[ 52.389s] delay_50ms_per_link                n=  40  min=202.730  mean=205.495  median=205.977  p95=207.449  max=207.845  sd= 1.476  (ms)
+[ 53.861s] nodelay_delay_00ms_per_link        n= 100  min=  0.978  mean=  1.221  median=  1.204  p95=  1.484  max=  1.567  sd= 0.130  (ms)
+[ 56.878s] nodelay_delay_10ms_per_link        n=  40  min= 41.252  mean= 44.786  median= 42.838  p95= 53.724  max= 54.840  sd= 4.412  (ms)
+[ 62.562s] nodelay_delay_25ms_per_link        n=  40  min=101.938  mean=104.028  median=103.351  p95=111.567  max=113.306  sd= 2.543  (ms)
+[ 72.841s] nodelay_delay_50ms_per_link        n=  40  min=202.848  mean=205.523  median=205.960  p95=207.367  max=208.270  sd= 1.494  (ms)
+[ 72.844s] --- Experiment 6: RTT under background load (3 clients + 1 flooder, ~1000 msg/s) ---
+[ 74.980s] chat_3_clients_under_load          n= 200  min=  0.317  mean=  0.567  median=  0.459  p95=  0.614  max= 18.567  sd= 1.282  (ms)
+[ 77.066s] nodelay_3_clients_under_load       n= 200  min=  0.326  mean=  0.505  median=  0.491  p95=  0.657  max=  0.895  sd= 0.095  (ms)

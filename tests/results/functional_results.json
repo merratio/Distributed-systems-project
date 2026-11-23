@@ -1,0 +1,116 @@
+[
+  {
+    "id": "T1",
+    "name": "Broadcast to all other clients, no echo to sender",
+    "status": "PASS",
+    "detail": "each client received exactly the 2 messages sent by the other 2 clients and none of its own"
+  },
+  {
+    "id": "T2a",
+    "name": "100 paced messages arrive complete and in order at both receivers",
+    "status": "PASS",
+    "detail": "B got 100/100, C got 100/100"
+  },
+  {
+    "id": "T2b",
+    "name": "1000-message burst arrives complete",
+    "status": "PASS",
+    "detail": "B got 1000/1000; missing message numbers []. Cause: server recv(1024) cut messages at the 1024-byte boundary and inserted the sender-address prefix mid-message (0 prefixes found inside a message). Messages that did arrive were in order: True"
+  },
+  {
+    "id": "T2b-obs",
+    "name": "TCP coalescing during burst",
+    "status": "INFO",
+    "detail": "1000 messages delivered in 778 recv() calls at client B"
+  },
+  {
+    "id": "T3a",
+    "name": "3 concurrent senders, moderate load: no message lost",
+    "status": "PASS",
+    "detail": "listeners D/E received {'D': 300, 'E': 300} of 300 messages"
+  },
+  {
+    "id": "T3b",
+    "name": "Per-sender (FIFO) order preserved",
+    "status": "PASS",
+    "detail": "each receiver saw every sender's messages in increasing order"
+  },
+  {
+    "id": "T3c",
+    "name": "All receivers see the same global interleaving",
+    "status": "PASS",
+    "detail": "D and E agree on the order of all 300 messages they both received (server broadcasts while holding one lock, so it acts as a sequencer)"
+  },
+  {
+    "id": "T3d",
+    "name": "3 concurrent senders, burst load (no pacing): no message lost",
+    "status": "PASS",
+    "detail": "listeners D/E received {'D': 300, 'E': 300} of 300 messages (same 1024-byte framing defect as T2b)"
+  },
+  {
+    "id": "T3e",
+    "name": "Burst load: per-sender order and global order still consistent",
+    "status": "PASS",
+    "detail": "FIFO per sender: True; D and E agree on order of 300 common messages: True"
+  },
+  {
+    "id": "T4a",
+    "name": "Clean disconnect of one client: others keep chatting, server stays up",
+    "status": "PASS",
+    "detail": "B and D still receive A's message after C left"
+  },
+  {
+    "id": "T4b",
+    "name": "Abrupt disconnect (connection reset): server survives, A and B still chat",
+    "status": "PASS",
+    "detail": "A->B and B->A delivery continues after D's connection was reset"
+  },
+  {
+    "id": "T5a",
+    "name": "Client can reconnect and receive new messages",
+    "status": "PASS",
+    "detail": "reconnected C received A's messages [7, 8, 9, 10, 11]"
+  },
+  {
+    "id": "T5b",
+    "name": "Messages sent while a client was offline are delivered after reconnect",
+    "status": "LIMITATION",
+    "detail": "messages 2-6 were NOT delivered: the server has no per-client buffer (optional 'persistent communication' extension is not implemented)"
+  },
+  {
+    "id": "T5c",
+    "name": "Always-online client B received everything",
+    "status": "PASS",
+    "detail": "B received messages 1-11"
+  },
+  {
+    "id": "T6a",
+    "name": "Message longer than 1024 bytes",
+    "status": "LIMITATION",
+    "detail": "server reads at most 1024 bytes per recv() and re-broadcasts each piece with its own address prefix: the 3014-byte message arrived as 3 pieces, each with its own prefix"
+  },
+  {
+    "id": "T7a",
+    "name": "Real clients exchange messages with timestamps",
+    "status": "PASS",
+    "detail": "Bob received '[HH:MM:SS] Alice: hello Bob'; Alice received Bob's reply"
+  },
+  {
+    "id": "T7b",
+    "name": "Sender does not receive its own message",
+    "status": "PASS",
+    "detail": "Alice's terminal does not show her own line"
+  },
+  {
+    "id": "T7c",
+    "name": "/quit makes the server log the departure",
+    "status": "PASS",
+    "detail": "server printed 'Client ... has disconnected'"
+  },
+  {
+    "id": "T7d",
+    "name": "Client notices when the server goes down",
+    "status": "FAIL",
+    "detail": "Bob's terminal printed 'Server disconnected.'"
+  }
+]

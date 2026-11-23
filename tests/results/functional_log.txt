@@ -1,0 +1,102 @@
+[  0.000s] === T1: 3 clients - broadcast reaches everyone except the sender ===
+[  1.191s] Server console:
+[  1.191s]    ('127.0.0.1', 49695) has connected to the server
+[  1.191s]    ('127.0.0.1', 49696) has connected to the server
+[  1.191s]    ('127.0.0.1', 49697) has connected to the server
+[  1.191s] Client A received: "('127.0.0.1', 49696): [02:51:19] B: MSG:B:1;('127.0.0.1', 49697): [02:51:19] C: MSG:C:1;"
+[  1.191s] Client B received: "('127.0.0.1', 49695): [02:51:19] A: MSG:A:1;('127.0.0.1', 49697): [02:51:19] C: MSG:C:1;"
+[  1.191s] Client C received: "('127.0.0.1', 49695): [02:51:19] A: MSG:A:1;('127.0.0.1', 49696): [02:51:19] B: MSG:B:1;"
+[  1.191s] RESULT T1 Broadcast to all other clients, no echo to sender: PASS - each client received exactly the 2 messages sent by the other 2 clients and none of its own
+[  1.191s] 
+[  1.197s] === T2: ordering of messages from one sender ===
+[  2.792s] RESULT T2a 100 paced messages arrive complete and in order at both receivers: PASS - B got 100/100, C got 100/100
+[  2.792s] 
+[  3.832s] RESULT T2b 1000-message burst arrives complete: PASS - B got 1000/1000; missing message numbers []. Cause: server recv(1024) cut messages at the 1024-byte boundary and inserted the sender-address prefix mid-message (0 prefixes found inside a message). Messages that did arrive were in order: True
+[  3.833s] 
+[  3.833s] Observation: B needed only 778 recv() calls for 1000 messages (TCP merged several chat lines into one read - there is no message delimiter).
+[  3.837s] === T3: concurrent senders (3 senders x 100 msgs + 2 silent listeners) ===
+[  6.356s] RESULT T3a 3 concurrent senders, moderate load: no message lost: PASS - listeners D/E received {'D': 300, 'E': 300} of 300 messages
+[  6.356s] 
+[  6.356s] RESULT T3b Per-sender (FIFO) order preserved: PASS - each receiver saw every sender's messages in increasing order
+[  6.356s] 
+[  6.356s] RESULT T3c All receivers see the same global interleaving: PASS - D and E agree on the order of all 300 messages they both received (server broadcasts while holding one lock, so it acts as a sequencer)
+[  6.356s] 
+[  8.375s] RESULT T3d 3 concurrent senders, burst load (no pacing): no message lost: PASS - listeners D/E received {'D': 300, 'E': 300} of 300 messages (same 1024-byte framing defect as T2b)
+[  8.375s] 
+[  8.375s] RESULT T3e Burst load: per-sender order and global order still consistent: PASS - FIFO per sender: True; D and E agree on order of 300 common messages: True
+[  8.375s] 
+[  8.380s] === T4: client disconnections (clean and abrupt) ===
+[  9.952s] RESULT T4a Clean disconnect of one client: others keep chatting, server stays up: PASS - B and D still receive A's message after C left
+[  9.952s] 
+[ 10.756s] RESULT T4b Abrupt disconnect (connection reset): server survives, A and B still chat: PASS - A->B and B->A delivery continues after D's connection was reset
+[ 10.756s] 
+[ 10.756s] Server console:
+[ 10.756s]    ('127.0.0.1', 49720) has connected to the server
+[ 10.756s]    ('127.0.0.1', 49721) has connected to the server
+[ 10.756s]    ('127.0.0.1', 49722) has connected to the server
+[ 10.756s]    ('127.0.0.1', 49723) has connected to the server
+[ 10.756s]    Client ('127.0.0.1', 49722) has disconnected
+[ 10.756s]    Client ('127.0.0.1', 49723) has disconnected
+[ 10.760s] === T5: reconnection and offline messages ===
+[ 13.639s] RESULT T5a Client can reconnect and receive new messages: PASS - reconnected C received A's messages [7, 8, 9, 10, 11]
+[ 13.639s] 
+[ 13.639s] RESULT T5b Messages sent while a client was offline are delivered after reconnect: LIMITATION - messages 2-6 were NOT delivered: the server has no per-client buffer (optional 'persistent communication' extension is not implemented)
+[ 13.639s] 
+[ 13.639s] RESULT T5c Always-online client B received everything: PASS - B received messages 1-11
+[ 13.639s] 
+[ 13.639s] Server console:
+[ 13.639s]    ('127.0.0.1', 49726) has connected to the server
+[ 13.639s]    ('127.0.0.1', 49727) has connected to the server
+[ 13.639s]    ('127.0.0.1', 49728) has connected to the server
+[ 13.639s]    Client ('127.0.0.1', 49728) has disconnected
+[ 13.639s]    ('127.0.0.1', 49729) has connected to the server
+[ 13.643s] === T6: edge cases ===
+[ 15.026s] 3014-byte message from A reached B with the sender prefix ('ip', port): inserted 3 times (server split it into 3 pieces of <=1024 bytes; B's recv() calls returned sizes [1046, 1046, 988])
+[ 15.026s] RESULT T6a Long message (>1024 bytes) is split into prefixed pieces: LIMITATION
+[ 15.026s] 
+[ 15.427s] Whitespace-only message delivered to B as: "('127.0.0.1', 49732):  "
+[ 15.430s] === T7: end-to-end with the real client/client.py (2 clients) ===
+[ 18.927s] --- Alice's terminal ---
+[ 18.927s]    Welcome to our group chat!
+[ 18.927s]    Enter your name: Connected! Type /quit when you want to leave.
+[ 18.927s]    
+[ 18.927s]    ('127.0.0.1', 49737): [02:51:36] Bob: hi Alice
+[ 18.927s]    You have left the chat.
+[ 18.927s] --- Bob's terminal ---
+[ 18.927s]    Welcome to our group chat!
+[ 18.927s]    Enter your name: Connected! Type /quit when you want to leave.
+[ 18.927s]    
+[ 18.927s]    ('127.0.0.1', 49736): [02:51:35] Alice: hello Bob
+[ 18.927s] --- Server console ---
+[ 18.928s]    ('127.0.0.1', 49736) has connected to the server
+[ 18.928s]    ('127.0.0.1', 49737) has connected to the server
+[ 18.928s]    Client ('127.0.0.1', 49736) has disconnected
+[ 18.928s] RESULT T7a Real clients exchange messages with timestamps: PASS - Bob received '[HH:MM:SS] Alice: hello Bob'; Alice received Bob's reply
+[ 18.928s] 
+[ 18.928s] RESULT T7b Sender does not receive its own message: PASS - Alice's terminal does not show her own line
+[ 18.928s] 
+[ 18.928s] RESULT T7c /quit makes the server log the departure: PASS - server printed 'Client ... has disconnected'
+[ 18.928s] 
+[ 19.731s] RESULT T7d Client notices when the server goes down: FAIL - Bob's terminal printed 'Server disconnected.'
+[ 19.731s] 
+[ 20.332s] Bob's client exited after pressing Enter: True
+[ 20.332s] === SUMMARY ===
+[ 20.333s] T1      PASS       Broadcast to all other clients, no echo to sender
+[ 20.333s] T2a     PASS       100 paced messages arrive complete and in order at both receivers
+[ 20.333s] T2b     PASS       1000-message burst arrives complete
+[ 20.333s] T2b-obs INFO       TCP coalescing during burst
+[ 20.333s] T3a     PASS       3 concurrent senders, moderate load: no message lost
+[ 20.333s] T3b     PASS       Per-sender (FIFO) order preserved
+[ 20.333s] T3c     PASS       All receivers see the same global interleaving
+[ 20.333s] T3d     PASS       3 concurrent senders, burst load (no pacing): no message lost
+[ 20.333s] T3e     PASS       Burst load: per-sender order and global order still consistent
+[ 20.333s] T4a     PASS       Clean disconnect of one client: others keep chatting, server stays up
+[ 20.333s] T4b     PASS       Abrupt disconnect (connection reset): server survives, A and B still chat
+[ 20.333s] T5a     PASS       Client can reconnect and receive new messages
+[ 20.333s] T5b     LIMITATION Messages sent while a client was offline are delivered after reconnect
+[ 20.334s] T5c     PASS       Always-online client B received everything
+[ 20.334s] T6a     LIMITATION Message longer than 1024 bytes
+[ 20.334s] T7a     PASS       Real clients exchange messages with timestamps
+[ 20.334s] T7b     PASS       Sender does not receive its own message
+[ 20.334s] T7c     PASS       /quit makes the server log the departure
+[ 20.334s] T7d     FAIL       Client notices when the server goes down
