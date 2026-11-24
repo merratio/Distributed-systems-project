@@ -3,7 +3,7 @@ Shared helpers for the chat-system test suite.
 
 TestClient   - a scriptable client that speaks the same wire format as client/client.py
                ("[HH:MM:SS] name: text") and records when every message arrives.
-start_server - launches server/server_fixed.py as a separate process on a chosen port.
+start_server - launches server.py as a separate process on a chosen port.
 DelayProxy   - a TCP proxy that adds a fixed one-way delay (used to simulate a slow network).
 """
 import os
@@ -61,7 +61,7 @@ class ServerProc:
 
     def __init__(self, port, nodelay=False):
         """nodelay=True runs the SAME server code but sets TCP_NODELAY on every accepted
-        connection (used only for the Nagle / delayed-ACK experiment; server_fixed.py is not edited)."""
+        connection (used only for the Nagle / delayed-ACK experiment)."""
         self.port = port
         patch = ""
         if nodelay:
@@ -69,7 +69,7 @@ class ServerProc:
                      "s.handleClients = lambda c, a: (c.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1), _h(c, a))[1]; ")
         code = (
             f"import sys; sys.path.insert(0, {SERVER_DIR!r}); "
-            f"import server_fixed as s; s.PORT = {port}; {patch}s.server()"
+            f"import server as s; s.PORT = {port}; {patch}s.server()"
         )
         self.proc = subprocess.Popen(
             [sys.executable, "-u", "-c", code],
