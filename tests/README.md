@@ -7,8 +7,7 @@ Requires Python 3.8+ and (for the charts only) `matplotlib`. Everything runs on 
 
 Results are written to `tests/results/` (logs, CSV, PNG charts).
 
-The tests start `server/server_fixed.py` (a minimal Python 3 fix of `server/server.py`, see the 3 `FIX` comments)
-as a separate process on a random free port range, so nothing needs to be started by hand and re-runs do not
+The tests start `server` as a separate process on a random free port range, so nothing needs to be started by hand and re-runs do not
 collide (the server does not set SO_REUSEADDR). `client/client.py` is used unmodified in test T7.
 
 Files: `common.py` (test client, server launcher, delay proxy) | `test_functional.py` | `test_rtt.py`
