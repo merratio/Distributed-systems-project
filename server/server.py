@@ -9,11 +9,11 @@ clients_lock = threading.Lock() #lock to make set thread safe
 
 def broadcast(message, sender_conn):
     with clients_lock:
-        for client in connected:
+         for client in list(connected):  # FIX 1
             if client != sender_conn:
                 try:
                     client.sendall(message.encode())
-                except socket.error, BrokenPipeError:
+                except (socket.error, BrokenPipeError):  # FIX 2 Python 3 syntax
                     connected.discard(client)
                     try:
                         client.close()
@@ -33,7 +33,7 @@ def handleClients(client, addr):
             message = client.recv(1024)
             if not message:
                 break
-            broadcast(f"{addr}: {message}", client)
+            broadcast(f"{addr}: {message.decode('utf-8', errors='replace')}", client)  # FIX 3
             
         except socket.error:
             break
